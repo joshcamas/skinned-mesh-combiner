@@ -8,6 +8,18 @@ namespace Utility
     {
         public struct SkinnedMeshData
         {
+            public SkinnedMeshData(Mesh mesh,Material[] materials) 
+            {
+                this.mesh = mesh;
+                this.materials = materials;
+            }
+            
+            public SkinnedMeshData(Mesh mesh,Material material) 
+            {
+                this.mesh = mesh;
+                this.materials = new Material[] { material };
+            }
+            
             public Mesh mesh;
             public Material[] materials;
         }
