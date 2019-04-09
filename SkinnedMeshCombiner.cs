@@ -24,10 +24,30 @@ namespace Utility
             public Material[] materials;
         }
 
+        //Combine and return a new SkinnedMeshRenderer  
         public static SkinnedMeshRenderer Combine(Transform baseBone,Transform[] bones, SkinnedMeshData[] skinnedMeshes)
         {
+
+            // Create mesh renderer
+            GameObject newGameObject = new GameObject();
+            newGameObject.transform.parent = baseBone.parent;
+            newGameObject.transform.localPosition = Vector3.zero;
+            newGameObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+            SkinnedMeshRenderer skinnedMeshRenderer = newGameObject.AddComponent<SkinnedMeshRenderer>();
+
+            Combine(skinnedMeshRenderer, baseBone, bones, skinnedMeshes);
+
+            return skinnedMeshRenderer;
+
+        }
+        
+        //Combine and apply to an existing SkinnedMeshRenderer
+        public static void Combine(SkinnedMeshRenderer skinnedMeshRenderer,Transform baseBone, Transform[] bones, SkinnedMeshData[] skinnedMeshes)
+        {
+
             if (skinnedMeshes.Length == 0)
-                return null;
+                return;
 
             //Collect info from first skinned mesh
             Matrix4x4[] bindPoses = skinnedMeshes[0].mesh.bindposes;
@@ -109,25 +129,14 @@ namespace Utility
             for (int i = 0; i < combined_indices.Count; ++i)
                 combined_new_mesh.SetTriangles(combined_indices[i], i);
 
-            // Create mesh renderer
-            GameObject combined_mesh_go = new GameObject();
-            combined_mesh_go.transform.parent = baseBone.parent;
-            combined_mesh_go.transform.localPosition = Vector3.zero;
+            skinnedMeshRenderer.sharedMesh = combined_new_mesh;
+            skinnedMeshRenderer.bones = bones;
+            skinnedMeshRenderer.rootBone = baseBone;
+            skinnedMeshRenderer.sharedMesh.bindposes = bindPoses;
 
-            //Rotate it to (-90,0,0) since that's how models import
-            combined_mesh_go.transform.localRotation = Quaternion.Euler(0,0,0);
-
-            SkinnedMeshRenderer combined_skin_mesh_renderer = combined_mesh_go.AddComponent<SkinnedMeshRenderer>();
-            combined_skin_mesh_renderer.sharedMesh = combined_new_mesh;
-            combined_skin_mesh_renderer.bones = bones;
-            combined_skin_mesh_renderer.rootBone = baseBone;
-            combined_skin_mesh_renderer.sharedMesh.bindposes = bindPoses;
-
-            combined_skin_mesh_renderer.sharedMesh.RecalculateNormals();
-            combined_skin_mesh_renderer.sharedMesh.RecalculateBounds();
-            combined_skin_mesh_renderer.sharedMaterials = combined_materials;
-
-            return combined_skin_mesh_renderer;
+            skinnedMeshRenderer.sharedMesh.RecalculateNormals();
+            skinnedMeshRenderer.sharedMesh.RecalculateBounds();
+            skinnedMeshRenderer.sharedMaterials = combined_materials;
 
         }
     }
