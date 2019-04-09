@@ -1,15 +1,14 @@
 # skinnedmeshcombiner
-A Skinned Mesh Combiner that doesn't require actual skinned meshes (it makes sense I swear)
 
-Most skinned mesh combiners require actual SkinnedMeshComponents to base the data off of - this means it's a bit slower, since if you want to create a character with a lot of skinned mesh parts, you'll need to first create each individual skinned mesh renderer, then you'll need to merge them and destroy the old renderers. A waste of time.
+Most skinned mesh combiners require actual SkinnedMeshComponents to base the data off of - this means it's a bit slower, since if you want to create a character with a lot of skinned mesh parts, you'll need to first create each individual skinned mesh renderer, then you'll need to merge them and destroy the old renderers. 
 
-This solution skips this issue - it merges meshes and spits out a single SkinnedMeshComponent. This requires an already existance of a rig / bone array.
+This solution skips this issue - simply create a single rig, then give it a bunch of meshe datas - it then spits out a single SkinnedMeshComponent.
 
 There are some downsides - by far the biggest one is the fact that each mesh being merged must have the same exact number of boneweights. So this solution is definitely not for everyone.
 
 ### Usage
 
-```
+```c#
 //Create Rig
 GameObject rig = GameObject.Instantiate(myRig);
 
