@@ -19,10 +19,10 @@ Transform rootBone = rigRenderer.rootBone;
 
 //Then build your array of SkinnedMeshDatas. These are the meshes / materials that you want to merge:
 
-List<SkinnedMeshDatas> meshes = new List<SkinnedMeshDatas>();
-meshes.Add(new SkinnedMeshDatas(mesh1,material));
-meshes.Add(new SkinnedMeshDatas(mesh2,material));
-meshes.Add(new SkinnedMeshDatas(mesh3,material));
+List<SkinnedMeshData> meshes = new List<SkinnedMeshData>();
+meshes.Add(new SkinnedMeshData(mesh1,material));
+meshes.Add(new SkinnedMeshData(mesh2,material));
+meshes.Add(new SkinnedMeshData(mesh3,material));
 
 //Pack! (In this case, by overwriting the already existing renderer)
 Combine(rigRenderer,rootBone,bones,meshes)
