@@ -23,6 +23,13 @@ namespace Utility
             public Mesh mesh;
             public Material[] materials;
         }
+        
+        private struct BlendWeightData
+        {
+            public List<Vector3> deltaVerts;
+            public List<Vector3> deltaNormals;
+            public List<Vector3> deltaTangents;
+        }
 
         //Combine and return a new SkinnedMeshRenderer  
         public static SkinnedMeshRenderer Combine(Transform baseBone,Transform[] bones, SkinnedMeshData[] skinnedMeshes)
@@ -83,6 +90,8 @@ namespace Utility
             var combined_bone_weights = new List<BoneWeight>();
             var combined_materials = new Material[combineInstanceArrays.Count];
 
+            var blendWeightNames = new List<string>();
+
             var vertex_offset_map = new Dictionary<Mesh, int>();
 
             int vertex_index_offset = 0;
@@ -116,6 +125,15 @@ namespace Utility
                         indices[k] += vertex_current_offset;
 
                     submesh_indices.AddRange(indices);
+                    
+                    for(int i =0;i <combine.mesh.blendShapeCount;i++)
+                    {
+                        string shapeID = combine.mesh.GetBlendShapeName(i);
+
+                        //For now just add the ID
+                        if (!blendWeightNames.Contains(shapeID))
+                            blendWeightNames.Add(shapeID);
+                    }
                 }
                 // Push indices for given submesh
                 combined_indices.Add(submesh_indices.ToArray());
@@ -129,6 +147,50 @@ namespace Utility
             for (int i = 0; i < combined_indices.Count; ++i)
                 combined_new_mesh.SetTriangles(combined_indices[i], i);
 
+            //Now loop through again and build blend weights
+            foreach (string blendweight in blendWeightNames)
+            {
+                var blankWeights = new BlendWeightData();
+                blankWeights.deltaNormals = new List<Vector3>();
+                blankWeights.deltaTangents = new List<Vector3>();
+                blankWeights.deltaVerts = new List<Vector3>();
+
+                var combWeights = new BlendWeightData();
+                combWeights.deltaNormals = new List<Vector3>();
+                combWeights.deltaTangents = new List<Vector3>();
+                combWeights.deltaVerts = new List<Vector3>();
+
+                foreach (var combine_instance in combineInstanceArrays)
+                {
+                    foreach (var combine in combine_instance.Value)
+                    {
+                        Vector3[] deltaVerts = new Vector3[combine.mesh.vertexCount];
+                        Vector3[] deltaNormals = new Vector3[combine.mesh.vertexCount];
+                        Vector3[] deltaTangents = new Vector3[combine.mesh.vertexCount];
+
+                        blankWeights.deltaVerts.AddRange(deltaVerts);
+                        blankWeights.deltaNormals.AddRange(deltaNormals);
+                        blankWeights.deltaTangents.AddRange(deltaTangents);
+
+                        //If this mesh has data, pack that. Otherwise the deltas will be zero, and those will be packed
+                        if (combine.mesh.GetBlendShapeIndex(blendweight) != -1)
+                        {
+                            int index = combine.mesh.GetBlendShapeIndex(blendweight);
+                            combine.mesh.GetBlendShapeFrameVertices(index, combine.mesh.GetBlendShapeFrameCount(index)-1, deltaVerts, deltaNormals, deltaTangents);
+
+                        }
+
+                        combWeights.deltaVerts.AddRange(deltaVerts);
+                        combWeights.deltaNormals.AddRange(deltaNormals);
+                        combWeights.deltaTangents.AddRange(deltaTangents);
+                    }
+                }
+
+                combined_new_mesh.AddBlendShapeFrame(blendweight, 0, blankWeights.deltaVerts.ToArray(), blankWeights.deltaNormals.ToArray(), blankWeights.deltaTangents.ToArray());
+                combined_new_mesh.AddBlendShapeFrame(blendweight, 1, combWeights.deltaVerts.ToArray(), combWeights.deltaNormals.ToArray(), combWeights.deltaTangents.ToArray());
+
+            }
+            
             skinnedMeshRenderer.sharedMesh = combined_new_mesh;
             skinnedMeshRenderer.bones = bones;
             skinnedMeshRenderer.rootBone = baseBone;
