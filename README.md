@@ -1,4 +1,6 @@
-# skinned-mesh-combiner
+# Replaced with: [Faster](https://github.com/joshcamas/fast-skinned-mesh-combiner) version. Seriously, it's A LOT better.
+
+## skinned-mesh-combiner
 
 Most skinned mesh combiners require actual SkinnedMeshComponents to base the data off of - this means it's a bit slower, since if you want to create a character with a lot of skinned mesh parts, you'll need to first create each individual skinned mesh renderer, then you'll need to merge them and destroy the old renderers. 
 
