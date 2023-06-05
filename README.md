@@ -1,4 +1,4 @@
-# Replaced with a [faster](https://github.com/joshcamas/fast-skinned-mesh-combiner) version. Seriously, it's A LOT better.
+# Replaced with a [faster version](https://github.com/joshcamas/fast-skinned-mesh-combiner). Seriously, it's A LOT better.
 
 ## skinned-mesh-combiner
 
